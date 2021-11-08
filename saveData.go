@@ -13,7 +13,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func saveData(users []User) error {
+func saveData(users []User) (*mongo.BulkWriteResult, error) {
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
@@ -130,9 +130,9 @@ func saveData(users []User) error {
 	bulkOption := options.BulkWriteOptions{}
 	bulkOption.SetOrdered(false)
 
-	_, err = collection.BulkWrite(context.TODO(), operations, &bulkOption)
+	result, err := collection.BulkWrite(context.TODO(), operations, &bulkOption)
 	if err != nil && !strings.Contains(err.Error(), "duplicate key error") {
-		return err
+		return nil, err
 	}
-	return nil
+	return result, nil
 }
