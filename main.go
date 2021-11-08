@@ -30,7 +30,9 @@ func main() {
 		// Batch by page: More memory efficient + MongoDB has max 1000 operations per batch
 		for page := 1; page <= maxPages; page++ {
 			pageStart := time.Now()
-			fmt.Printf("Fetching page %v...", page)
+			if *logLevelPtr >= 2 {
+				fmt.Printf("Fetching page %v...", page)
+			}
 			responseBody, err := getSourceData(page)
 			if err != nil {
 				log.Fatal(err)
@@ -56,7 +58,9 @@ func main() {
 				maxPages = int(responseBody.Count/100) + 1
 			}
 			pageDuration := time.Since(pageStart)
-			fmt.Printf("Completed in %v\n", pageDuration)
+			if *logLevelPtr >= 2 {
+				fmt.Printf("Completed in %v\n", pageDuration)
+			}
 		}
 		duration := time.Since(start)
 		fmt.Printf("All pages finished. Total Runtime: %v, Total (Inserts,Modified,Upserts): (%v,%v,%v)\n", duration, totalInserts, totalModified, totalUpserts)
