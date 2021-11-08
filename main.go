@@ -5,12 +5,18 @@ import (
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	loopPtr := flag.Bool("loop", false, "continuously loop ingest")
 	logLevelPtr := flag.Int("log", 1, "logging level, 1=min(Default), 3=max")
 	flag.Parse()
+
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
 
 	fmt.Printf("Starting aoe4db sync. Opts- Loop: %v, Log: %v\n", *loopPtr, *logLevelPtr)
 	for {

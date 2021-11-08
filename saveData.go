@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,9 +14,6 @@ import (
 
 func saveData(users []User) (*mongo.BulkWriteResult, error) {
 
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
-	}
 	connectionString := os.Getenv("AOE4DB_ConnectionString")
 	if connectionString == "" {
 		log.Fatal("You must set your 'AOE4DB_ConnectionString' environmental variable. See\n\t https://docs.mongodb.com/drivers/go/current/usage-examples/#environment-variable")
