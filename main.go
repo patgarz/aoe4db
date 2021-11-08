@@ -23,6 +23,8 @@ func main() {
 		start := time.Now()
 		fmt.Printf("Starting run. Time: %v\n", start)
 		maxPages := 1
+		totalInserts := 0
+		totalModified := 0
 		totalUpserts := 0
 
 		// Batch by page: More memory efficient + MongoDB has max 1000 operations per batch
@@ -41,9 +43,11 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
+			totalInserts += int(result.InsertedCount)
+			totalModified += int(result.ModifiedCount)
 			totalUpserts += int(result.UpsertedCount)
 			if *logLevelPtr >= 3 {
-				fmt.Printf("\nUpsert count: %v\n", result.UpsertedCount)
+				fmt.Printf("\nInsert count: %v\nModified count: %v\nUpsert count: %v\n", result.InsertedCount, result.ModifiedCount, result.UpsertedCount)
 			}
 			if *logLevelPtr >= 2 {
 				fmt.Printf("Saving...")
@@ -55,7 +59,7 @@ func main() {
 			fmt.Printf("Completed in %v\n", pageDuration)
 		}
 		duration := time.Since(start)
-		fmt.Printf("All pages finished. Total Runtime: %v, Total Upserts: %v\n", duration, totalUpserts)
+		fmt.Printf("All pages finished. Total Runtime: %v, Total (Inserts,Modified,Upserts): (%v,%v,%v)\n", duration, totalInserts, totalModified, totalUpserts)
 
 		if !*loopPtr {
 			break
