@@ -56,10 +56,10 @@ func saveData(users []User) (*mongo.BulkWriteResult, error) {
 			"$set": bson.M{
 				"rank": v.Rank,
 			},
-			"$max": bson.M{
+			"$min": bson.M{
 				"bestRank": v.Rank,
 			},
-			"$min": bson.M{
+			"$max": bson.M{
 				"worstRank": v.Rank,
 			},
 			"$push": bson.M{
