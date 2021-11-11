@@ -47,7 +47,7 @@ func main() {
 	}
 	fmt.Printf("Completed. Cache length: %v records\n", len(leaderboardCache))
 
-	fmt.Printf("Starting aoe4db sync. Opts- Loop: %v, Log: %v, Testing: %v\n", *loopPtr, *logLevelPtr, *testingPtr)
+	fmt.Printf("Starting aoe4db sync. Opts- Loop: %v, Log: %v, Testing: %v, NoSave: %v\n", *loopPtr, *logLevelPtr, *testingPtr, *noSavePtr)
 	for {
 		start := time.Now()
 		fmt.Printf("Starting run. Time: %v\n", start)
