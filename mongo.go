@@ -12,8 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func saveData(users []User) (*mongo.BulkWriteResult, error) {
-
+func dbConnect(ConnectionStringName string) (*mongo.Client, error) {
 	connectionString := os.Getenv("AOE4DB_ConnectionString")
 	if connectionString == "" {
 		log.Fatal("You must set your 'AOE4DB_ConnectionString' environmental variable. See\n\t https://docs.mongodb.com/drivers/go/current/usage-examples/#environment-variable")
@@ -22,14 +21,11 @@ func saveData(users []User) (*mongo.BulkWriteResult, error) {
 	if err != nil {
 		panic(err)
 	}
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
 
-	collection := client.Database("quickmatch-stats").Collection("current-1v1")
-	now := time.Now()
+	return client, nil
+}
+
+func saveData(collection *mongo.Collection, users []User, now time.Time) (*mongo.BulkWriteResult, error) {
 
 	var operations []mongo.WriteModel
 	for _, v := range users {

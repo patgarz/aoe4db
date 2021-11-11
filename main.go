@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -14,13 +15,37 @@ func main() {
 	loopPtr := flag.Bool("loop", false, "continuously loop ingest")
 	logLevelPtr := flag.Int("log", 1, "logging level, 1=min(Default), 3=max")
 	testingPtr := flag.Bool("testing", false, "only do first 10 pages of leaderboard")
+	noSavePtr := flag.Bool("nosave", false, "do not save any discovered changes to DB")
 	flag.Parse()
 
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found")
 	}
 
-	leaderboardCache := make(map[int]User)
+	// Connect and keep our connection up as long as our app is running
+	client, err := dbConnect("AOE4DB_ConnectionString")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	collection := client.Database("quickmatch-stats").Collection("current-1v1")
+
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+
+	// We build a map as a local cache to prevent ourselves from having to query the database for
+	//	every single record. This saves a LOT of money by preventing constant database calls in exchange
+	// 	for a little extra sync app RAM (we only need to cache the current dataset, not any of the history)
+	// Ex: Runtime without cache ~15-20 mins, runtime with cache ~15-20 seconds
+	fmt.Printf("Building cache...")
+	leaderboardCache, err := buildCache(collection)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Completed. Cache length: %v records\n", len(leaderboardCache))
 
 	fmt.Printf("Starting aoe4db sync. Opts- Loop: %v, Log: %v, Testing: %v\n", *loopPtr, *logLevelPtr, *testingPtr)
 	for {
@@ -32,7 +57,7 @@ func main() {
 		totalModified := 0
 		totalUpserts := 0
 
-		// Batch by page: More memory efficient + MongoDB has max 1000 operations per batch
+		// Batch by page of source dataset
 		for page := 1; page <= maxPages; page++ {
 			pageStart := time.Now()
 			if *logLevelPtr >= 2 {
@@ -57,11 +82,11 @@ func main() {
 				fmt.Printf("Users Changed: %v\n", len(users))
 			}
 			var result *mongo.BulkWriteResult
-			if len(users) > 0 {
+			if len(users) > 0 && !*noSavePtr {
 				if *logLevelPtr >= 2 {
 					fmt.Printf("Saving...\n")
 				}
-				result, err = saveData(users)
+				result, err = saveData(collection, users, pageStart)
 				if err != nil {
 					log.Fatal(err)
 				}
