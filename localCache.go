@@ -14,12 +14,21 @@ func buildCache(collection *mongo.Collection) (map[int]User, error) {
 
 	findOpts := options.Find()
 	findOpts.SetProjection(bson.M{
-		"_id":      0,
-		"rlUserId": 1,
-		"wins":     1,
-		"losses":   1,
-		"elo":      1,
-		"rank":     1,
+		"_id":          0,
+		"gameId":       1,
+		"userId":       1,
+		"rlUserId":     1,
+		"userName":     1,
+		"avatarUrl":    1,
+		"playerNumber": 1,
+		"elo":          1,
+		"eloRating":    1,
+		"rank":         1,
+		"region":       1,
+		"wins":         1,
+		"winPercent":   1,
+		"losses":       1,
+		"winStreak":    1,
 	})
 
 	response, err := collection.Find(context.TODO(), bson.M{}, findOpts)
@@ -37,11 +46,20 @@ func buildCache(collection *mongo.Collection) (map[int]User, error) {
 			log.Fatal(err)
 		}
 		leaderboardCache[user.RlUserId] = User{
-			RlUserId: user.RlUserId,
-			Wins:     user.Wins,
-			Losses:   user.Losses,
-			Elo:      user.Elo,
-			Rank:     user.Rank,
+			GameId:       user.GameId,
+			UserId:       user.UserId,
+			RlUserId:     user.RlUserId,
+			UserName:     user.UserName,
+			AvatarUrl:    user.AvatarUrl,
+			PlayerNumber: user.PlayerNumber,
+			Elo:          user.Elo,
+			EloRating:    user.EloRating,
+			Rank:         user.Rank,
+			Region:       user.Region,
+			Wins:         user.Wins,
+			WinPercent:   user.WinPercent,
+			Losses:       user.Losses,
+			WinStreak:    user.WinStreak,
 		}
 	}
 
