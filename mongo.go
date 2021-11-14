@@ -62,9 +62,7 @@ func saveData(collection *mongo.Collection, users []User, now time.Time) (*mongo
 				"winStreak":    v.WinStreak,
 				"platform":     platform,
 				"totalGames":   totalGames,
-			},
-			"$currentDate": bson.M{
-				"lastGame": true,
+				"lastGame":     now,
 			},
 			"$max": bson.M{
 				"bestStreak":     v.WinStreak,
