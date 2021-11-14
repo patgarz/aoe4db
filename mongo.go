@@ -38,33 +38,6 @@ func saveData(collection *mongo.Collection, users []User, now time.Time) (*mongo
 		}
 
 		totalGames := v.Wins + v.Losses
-		// Split into two operations:
-		// 1) Update user's rank, maxrank, minrank on rank change - rank can drop without playing
-		// 2) Update user's elo, games, etc. on totalGames change (these only change after new games)
-		operationRank := mongo.NewUpdateOneModel()
-		operationRank.SetFilter(bson.M{
-			"rlUserId": v.RlUserId,
-			"rank": bson.M{
-				"$ne": v.Rank,
-			},
-		})
-		operationRank.SetUpdate(bson.M{
-			"$set": bson.M{
-				"rank": v.Rank,
-			},
-			"$min": bson.M{
-				"bestRank": v.Rank,
-			},
-			"$max": bson.M{
-				"worstRank": v.Rank,
-			},
-			"$push": bson.M{
-				"rankHistory": bson.M{
-					"rank":      v.Rank,
-					"timestamp": now,
-				},
-			},
-		})
 
 		operationGames := mongo.NewUpdateOneModel()
 		operationGames.SetFilter(bson.M{
@@ -107,16 +80,16 @@ func saveData(collection *mongo.Collection, users []User, now time.Time) (*mongo
 				"alternateNames": v.UserName,
 			},
 			"$push": bson.M{
-				"eloHistory": bson.M{
+				"history": bson.M{
 					"elo":       v.Elo,
+					"rank":      v.Rank,
 					"timestamp": now,
 				},
 			},
 		})
 
 		operationGames.SetUpsert(true)
-		operationRank.SetUpsert(true)
-		operations = append(operations, operationGames, operationRank)
+		operations = append(operations, operationGames)
 	}
 
 	bulkOption := options.BulkWriteOptions{}
