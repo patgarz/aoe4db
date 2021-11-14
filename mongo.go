@@ -33,7 +33,7 @@ func saveData(collection *mongo.Collection, users []User, now time.Time) (*mongo
 		platform := "Unknown"
 		if strings.Contains(v.AvatarUrl, "steamcdn") {
 			platform = "Steam"
-		} else if strings.Contains(v.UserId, "xboxlive") {
+		} else if strings.Contains(v.AvatarUrl, "xboxlive") {
 			platform = "Xbox"
 		}
 
