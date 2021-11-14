@@ -28,7 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	collection := client.Database("quickmatch-stats").Collection("current-1v1")
+	collection := client.Database("aoe4stats").Collection("quickmatch1v1")
 
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
