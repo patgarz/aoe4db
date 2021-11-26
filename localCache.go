@@ -78,10 +78,13 @@ func cacheCompare(leaderboardCache map[int]User, users []User) (map[int]User, []
 	var changedUsers []User
 	for _, user := range users {
 		if leaderboardCache[user.RlUserId] != user {
-			if leaderboardCache[user.RlUserId].Wins+leaderboardCache[user.RlUserId].Losses <
-				user.Wins+user.Losses {
+			cachedTotalGames := leaderboardCache[user.RlUserId].Wins + leaderboardCache[user.RlUserId].Losses
+			newTotalGames := user.Wins + user.Losses
+			if cachedTotalGames < newTotalGames {
 				changedUsers = append(changedUsers, user)
 				leaderboardCache[user.RlUserId] = user
+			} else if leaderboardCache[user.RlUserId].Rank != user.Rank && cachedTotalGames == newTotalGames {
+				changedUsers = append(changedUsers, user)
 			}
 		}
 	}

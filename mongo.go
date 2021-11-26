@@ -55,6 +55,7 @@ func saveData(collection *mongo.Collection, users []User, now time.Time) (*mongo
 				"playerNumber": v.PlayerNumber,
 				"elo":          v.Elo,
 				"eloRating":    v.EloRating,
+				"rank":         v.Rank,
 				"region":       v.Region,
 				"wins":         v.Wins,
 				"winPercent":   v.WinPercent,
