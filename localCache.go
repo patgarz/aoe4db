@@ -85,6 +85,7 @@ func cacheCompare(leaderboardCache map[int]User, users []User) (map[int]User, []
 				leaderboardCache[user.RlUserId] = user
 			} else if leaderboardCache[user.RlUserId].Rank != user.Rank && cachedTotalGames == newTotalGames {
 				changedUsers = append(changedUsers, user)
+				leaderboardCache[user.RlUserId] = user
 			}
 		}
 	}

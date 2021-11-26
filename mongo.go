@@ -42,8 +42,17 @@ func saveData(collection *mongo.Collection, users []User, now time.Time) (*mongo
 		operationGames := mongo.NewUpdateOneModel()
 		operationGames.SetFilter(bson.M{
 			"rlUserId": v.RlUserId,
-			"totalGames": bson.M{
-				"$ne": totalGames,
+			"$or": []bson.M{
+				{
+					"totalGames": bson.M{
+						"$ne": totalGames,
+					},
+				},
+				{
+					"rank": bson.M{
+						"$ne": v.Rank,
+					},
+				},
 			},
 		})
 		operationGames.SetUpdate(bson.M{
